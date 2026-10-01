@@ -510,11 +510,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Ezhuthaani API", lifespan=lifespan)
 
 cors_origins_raw = os.environ.get("CORS_ORIGINS", "")
-if cors_origins_raw:
+if cors_origins_raw and cors_origins_raw.strip() != "*":
     cors_origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
+        allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -522,7 +523,7 @@ if cors_origins_raw:
 else:
     app.add_middleware(
         CORSMiddleware,
-        allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+|http://127\.0\.0\.1:\d+",
+        allow_origin_regex=r".*",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
