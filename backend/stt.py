@@ -24,8 +24,8 @@ class WhisperSTTService:
     def __init__(self):
         self.model: Optional[WhisperModel] = None
         self.available: bool = False
-        # Default to 'small' model for high-accuracy Tamil & English recognition
-        self.model_size: str = os.environ.get("WHISPER_MODEL_SIZE", "small")
+        # Default to 'tiny' model for cloud / Render 512MB RAM compatibility
+        self.model_size: str = os.environ.get("WHISPER_MODEL_SIZE", "tiny")
         self.error_message: Optional[str] = None
 
     def load_model(self) -> bool:

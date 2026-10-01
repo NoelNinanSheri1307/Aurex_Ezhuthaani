@@ -42,8 +42,22 @@ class PiperTTSService:
             print(f"[PiperTTS] {self.error_message}")
             return False
 
-        target_path = self.resolve_model_path()
-        self.model_path = target_path
+        config_path = Path(str(target_path) + ".json")
+
+        if not target_path.exists() or not config_path.exists():
+            print(f"[PiperTTS] ONNX model missing at {target_path}. Attempting auto-download from HuggingFace...")
+            try:
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                import urllib.request
+                onnx_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ta/ta_IN/valluvar/medium/ta_IN-valluvar-medium.onnx"
+                json_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ta/ta_IN/valluvar/medium/ta_IN-valluvar-medium.onnx.json"
+                if not target_path.exists():
+                    urllib.request.urlretrieve(onnx_url, target_path)
+                if not config_path.exists():
+                    urllib.request.urlretrieve(json_url, config_path)
+                print(f"[PiperTTS] ONNX model auto-downloaded successfully!")
+            except Exception as dl_err:
+                print(f"[PiperTTS] Model auto-download failed: {dl_err}")
 
         if not target_path.exists():
             self.error_message = f"Piper model file not found at {target_path}"
@@ -51,7 +65,6 @@ class PiperTTSService:
             print(f"[PiperTTS] {self.error_message}")
             return False
 
-        config_path = Path(str(target_path) + ".json")
         if not config_path.exists():
             self.error_message = f"Piper model config JSON not found at {config_path}"
             self.available = False
